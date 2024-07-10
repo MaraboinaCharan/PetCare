@@ -1,12 +1,11 @@
 import express from 'express';
-import signUp from '../controllers/user-controller.js';
-import { login } from '../controllers/user-controller.js';
-import { protectRoute } from '../controllers/user-controller.js';
+import { protectRoute } from '../controllers/auth-controller.js';
+import { deleteUser, updatePassword, updateUserData } from '../controllers/user-controller.js';
 const userRouter=express.Router();
 
-userRouter.get('/',login)
-userRouter.post('/signup',signUp)
-//use protectRoute for other routes
+userRouter.patch('/updatePassword',protectRoute,updatePassword);
+userRouter.patch('/updateUserData',protectRoute,updateUserData);
+userRouter.delete('/deleteUser',protectRoute,deleteUser);
 
 
 export default userRouter;

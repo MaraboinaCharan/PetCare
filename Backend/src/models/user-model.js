@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import validator from 'validator';
 import bcrypt from 'bcrypt';
+import crypto from 'crypto';
 
 const userSchema=new mongoose.Schema({
     name:{
@@ -52,7 +53,15 @@ const userSchema=new mongoose.Schema({
         relationship:{type:String},
         contactNumber:{type:String}
     },
-    passwordChangedAt:Date
+    role:{
+        type:String,
+        enum:['user','admin'],
+        default:'user'
+    },
+    passwordChangedAt:Date,
+    passwordResetToken:String,
+    passwordResetTokenExpires:Date,
+
 
 
 })
@@ -83,10 +92,20 @@ userSchema.methods.isPasswordChanged=async function(JWTTimestamp)
 {
     if(this.passwordChangedAt)
     {
+
         const passwordChangeTimestamp=parseInt(this.passwordChangedAt.getTime()/1000,10);
         return JWTTimestamp<passwordChangeTimestamp;
     }
     return false;
+
+}
+userSchema.methods.createResetPasswordToken=function(){
+
+    const resetToken=crypto.randomBytes(32).toString('hex');
+    this.passwordResetToken=crypto.createHash('sha256').update(resetToken).digest('hex');
+    this.passwordResetTokenExpires=Date.now()+10*60*1000;
+    // console.log(this.passwordResetToken,resetToken);
+    return resetToken;
 
 }
 
