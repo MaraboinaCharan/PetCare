@@ -11,7 +11,7 @@ const filterObj=(obj,...allowedFields)=>{
     });
     return newObj;
   };
-  
+
 
 export const updatePassword=async(req,res,next)=>{
     try{

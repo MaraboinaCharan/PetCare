@@ -1,8 +1,11 @@
 import jwt from 'jsonwebtoken';
 import util from 'util';
 import crypto from 'crypto';
-import User from '../models/user-model.js';
+import User from '../models/user.js';
 import sendEmail from '../utils/email.js';
+import dotenv from 'dotenv';
+
+dotenv.config({path:"./config.env"});
 
 const signToken=(id)=>{
     return jwt.sign({id},process.env.SECRET_STR,{
@@ -10,8 +13,22 @@ const signToken=(id)=>{
     })
     
 }
+
 export const createSendResponse=(user,statusCode,res)=>{
+
     const token=signToken(user._id);
+
+    const options={
+        maxAge:process.env.COOKIE_EXPIRES,
+        httpOnly:true
+    }
+    console.log(options.maxAge)
+    options.secure=true;
+    res.cookie('jwt',token,options);
+    user.password=undefined,
+    user.confirmPassword=undefined;
+
+
     res.status(statusCode).json({
        "status":"success",
        token,
