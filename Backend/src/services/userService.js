@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
-import User from '../models/User';
+// import User from '../models/User';
 
 const userService = {
     comparePasswordInDb: async function (pass, passDb) {

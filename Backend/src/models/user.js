@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import validator from 'validator';
-import userMiddleware from '../services/userMiddleware';
+import userMiddleware from '../services/userMiddleware.js';
+import userService from '../services/userService.js';
 
 const userSchema=new mongoose.Schema({
     name:{
@@ -62,9 +63,9 @@ const userSchema=new mongoose.Schema({
     passwordResetTokenExpires:Date,
 })
 
-userSchema.methods.comparePasswordInDb = userService.comparePasswordInDb;
-userSchema.methods.isPasswordChanged = userService.isPasswordChanged;
-userSchema.methods.createResetPasswordToken = userService.createResetPasswordToken;
+userSchema.methods.comparePasswordInDb=userService.comparePasswordInDb;
+userSchema.methods.isPasswordChanged=userService.isPasswordChanged;
+userSchema.methods.createResetPasswordToken=userService.createResetPasswordToken;
 userSchema.pre('save', userMiddleware.hashPassword);
 
 const user=mongoose.model('User',userSchema);

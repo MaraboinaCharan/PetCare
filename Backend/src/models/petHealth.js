@@ -1,9 +1,10 @@
-import mongoose from "mongoose";
+import mongoose, { Schema } from "mongoose";
+import petProfile from "./petProfile.js";
 
 const petHealthSchema=new mongoose.Schema({
     pet:{
         type:Schema.Types.ObjectId,
-        ref:'petProfile',
+        ref:petProfile,
         required:true
     },
     weight:{

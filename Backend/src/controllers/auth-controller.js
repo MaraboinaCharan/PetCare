@@ -17,12 +17,12 @@ const signToken=(id)=>{
 export const createSendResponse=(user,statusCode,res)=>{
 
     const token=signToken(user._id);
-
     const options={
         maxAge:process.env.COOKIE_EXPIRES,
-        httpOnly:true
+        httpOnly:true,
+        sameSite:'None'
     }
-    console.log(options.maxAge)
+    // console.log(options.maxAge)
     options.secure=true;
     res.cookie('jwt',token,options);
     user.password=undefined,
@@ -84,6 +84,7 @@ export const login=async (req,res,next)=>{
     })
   }
 createSendResponse(user,200,res);
+
 
  }
  catch(err)
@@ -169,16 +170,27 @@ catch(err)
 }
 }
 
+export const logoutUser=async (req,res,next)=>{
+ res.clearCookie('jwt',{
+    httpOnly:true,
+    sameSite:'None'
+ });
+ return res.status(200).json({
+    "status":"success",
+    "message":"Loged out succesfully!"
+ })
+}
+
 export const protectRoute=async (req,res,next)=>{
 try{
-    const testToken=req.headers.authorization;
-    // console.log(testToken);
-    let token;
-    if(testToken&&testToken.startsWith('Bearer'))
-    {
-      token=testToken.split(' ')[1];
-    }
- 
+   
+ let token;
+        if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+            token = req.headers.authorization.split(' ')[1];
+        } else if (req.cookies && req.cookies.jwt) {
+            token = req.cookies.jwt;
+            
+        }
     if(!token)
     {
         return res.status(401).json({message: 'Invalid Token'});

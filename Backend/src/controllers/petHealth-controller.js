@@ -1,4 +1,4 @@
-import PetHealth from '../models/user-model.js';
+// import PetHealth from '../models/user-model.js';
 import { createSendResponse } from './auth-controller.js';
 
 export const addPetHealthInfo=(req,res,next)=>{

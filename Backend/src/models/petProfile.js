@@ -1,29 +1,32 @@
-import mongoose from "mongoose";
-import petHealthSchema from "./PetHealth";
+import mongoose, { Schema } from "mongoose";
+import petHealth from "./PetHealth.js";
+import User from "./user.js";
 
 const petProfileSchema=new mongoose.Schema({
     owner:{
         type:Schema.Types.ObjectId,
-        ref:'User',
-        required:true
+        ref:'User'
     },
     petName:{
         type:String,
-        required:true
+        required:[true,'Please Enter pet name']
     },
     age:{
         type:Number,
-        required:true
+        required:[true,'Please Enter age']
     },
     breed:{
         type:String,
-        required:true
+        required:[true,'Please Enter Breed']
     },
     petProfileCreatedAt:{
         type:Date,
         default:Date.now()
     },
-    medicalHistory:petHealthSchema,
+    medicalHistory:{
+        type: Schema.Types.ObjectId,
+        ref:'petHealth'
+    },
     petProfilePicture:{
         url:String
     },
