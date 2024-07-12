@@ -1,8 +1,11 @@
 import jwt from 'jsonwebtoken';
 import util from 'util';
 import crypto from 'crypto';
-import User from '../models/user-model.js';
+import User from '../models/user.js';
 import sendEmail from '../utils/email.js';
+import dotenv from 'dotenv';
+
+dotenv.config({path:"./config.env"});
 
 const signToken=(id)=>{
     return jwt.sign({id},process.env.SECRET_STR,{
@@ -10,8 +13,22 @@ const signToken=(id)=>{
     })
     
 }
+
 export const createSendResponse=(user,statusCode,res)=>{
+
     const token=signToken(user._id);
+    const options={
+        maxAge:process.env.COOKIE_EXPIRES,
+        httpOnly:true,
+        sameSite:'None'
+    }
+    // console.log(options.maxAge)
+    options.secure=true;
+    res.cookie('jwt',token,options);
+    user.password=undefined,
+    user.confirmPassword=undefined;
+
+
     res.status(statusCode).json({
        "status":"success",
        token,
@@ -67,6 +84,7 @@ export const login=async (req,res,next)=>{
     })
   }
 createSendResponse(user,200,res);
+
 
  }
  catch(err)
@@ -152,16 +170,27 @@ catch(err)
 }
 }
 
+export const logoutUser=async (req,res,next)=>{
+ res.clearCookie('jwt',{
+    httpOnly:true,
+    sameSite:'None'
+ });
+ return res.status(200).json({
+    "status":"success",
+    "message":"Loged out succesfully!"
+ })
+}
+
 export const protectRoute=async (req,res,next)=>{
 try{
-    const testToken=req.headers.authorization;
-    // console.log(testToken);
-    let token;
-    if(testToken&&testToken.startsWith('Bearer'))
-    {
-      token=testToken.split(' ')[1];
-    }
- 
+   
+ let token;
+        if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+            token = req.headers.authorization.split(' ')[1];
+        } else if (req.cookies && req.cookies.jwt) {
+            token = req.cookies.jwt;
+            
+        }
     if(!token)
     {
         return res.status(401).json({message: 'Invalid Token'});

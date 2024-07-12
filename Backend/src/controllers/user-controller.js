@@ -1,4 +1,4 @@
-import User from '../models/user-model.js';
+import User from '../models/user.js';
 import { createSendResponse } from './auth-controller.js';
 
 
@@ -11,7 +11,7 @@ const filterObj=(obj,...allowedFields)=>{
     });
     return newObj;
   };
-  
+
 
 export const updatePassword=async(req,res,next)=>{
     try{
