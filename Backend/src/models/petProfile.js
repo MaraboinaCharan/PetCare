@@ -1,4 +1,5 @@
 import mongoose, { Schema } from "mongoose";
+import petProfileMiddleware from "../middlewares/petProfile-middleware.js";
 import petHealth from "./PetHealth.js";
 import User from "./user.js";
 
@@ -35,6 +36,9 @@ const petProfileSchema=new mongoose.Schema({
     }]
 
 })
+
+petProfileSchema.pre('findOneAndDelete',petProfileMiddleware.deleteMedicalHistory);
+
 const petProfile=mongoose.model('petProfile',petProfileSchema);
 
 export default petProfile;
