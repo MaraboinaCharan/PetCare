@@ -4,39 +4,10 @@ import crypto from 'crypto';
 import User from '../models/user.js';
 import sendEmail from '../utils/email.js';
 import dotenv from 'dotenv';
+import { createSendResponse, sendResponse } from '../utils/utils.js';
 
 dotenv.config({path:"./config.env"});
 
-const signToken=(id)=>{
-    return jwt.sign({id},process.env.SECRET_STR,{
-        expiresIn:process.env.LOGIN_EXPIRES
-    })
-    
-}
-
-export const createSendResponse=(user,statusCode,res)=>{
-
-    const token=signToken(user._id);
-    const options={
-        maxAge:process.env.COOKIE_EXPIRES,
-        httpOnly:true,
-        sameSite:'None'
-    }
-    // console.log(options.maxAge)
-    options.secure=true;
-    res.cookie('jwt',token,options);
-    user.password=undefined,
-    user.confirmPassword=undefined;
-
-
-    res.status(statusCode).json({
-       "status":"success",
-       token,
-       "data":{
-        user
-       }
-    })
-}
 
 
 const signUp=async (req,res,next)=>{
@@ -47,28 +18,22 @@ const signUp=async (req,res,next)=>{
  
  if(existingUser)
  {
-   return res.status(400).json({
-        "status":"Duplicate User",
-        message:"User Already exists"
-    })
+   return sendResponse(res,400,'Duplicate User','User already exists',null);
    
  }
  const newUser=await User.create({
     name,email,contactNumber,address,gender,password,confirmPassword
  });
- console.log(newUser)
+
    createSendResponse(newUser,201,res);
 }
 catch(err){
-    res.status(500).json({
-        "status":"Error",
-        "msg":err.message
-    })
+    sendResponse(res,500,'Error',err.message,null);
 }
 }
 
 
-export const login=async (req,res,next)=>{
+const login=async (req,res,next)=>{
  try{
   const {email,password}=req.body;
 
@@ -78,10 +43,7 @@ export const login=async (req,res,next)=>{
 
   if(!user||!isPasswordCorrect)
   {
-    return res.status(401).json({
-        "status":"Error",
-        "message":"Invalid email or password"
-    })
+    return sendResponse(res,401,'Error','Invalied email or passowrd',null);
   }
 createSendResponse(user,200,res);
 
@@ -89,22 +51,16 @@ createSendResponse(user,200,res);
  }
  catch(err)
  {
-    res.status(500).json({
-        "status":"Error",
-        "message": err.message
-    });
+   sendResponse(res,500,'Error',err.message,null);
  }
 }
 
 
-export const forgotPassword=async (req,res,next)=>{
+const forgotPassword=async (req,res,next)=>{
  const user=await User.findOne({email:req.body.email});
  if(!user)
  {
-    return res.status(201).json({
-        "status":"Failed",
-        "message":"user doesn't exist with the given email-id"
-    });
+    return sendResponse(res,404,'Failed','User doesnot exist with the given email-id',null)
  }
  const resetToken=user.createResetPasswordToken();
  await user.save({validateBeforeSave:false});
@@ -116,44 +72,32 @@ export const forgotPassword=async (req,res,next)=>{
         subject:'Reset Password for PetCare Account',
         message:emailMessage
     })
-    res.status(201).json({
-        "status":"success",
-        message:"Password Reset link sent to the user"
-    })
+   sendResponse(res,200,'Success','Password reset link sent to the user',null);
  }
  catch(err)
  {
     user.passwordResetToken=undefined,
     user.passwordResetTokenExpires=undefined,
     user.save({validateBeforeSave:false}),
-    res.status(201).json({
-        "status":"Error",
-        "message":err.message
-    })
-    return next();
+    sendResponse(res,500,'Error',err.message,null);
+  
  }
 
 }
 
 
-export const resetPassword=async (req,res,next)=>{
+const resetPassword=async (req,res,next)=>{
     try{
  const token=crypto.createHash('sha256').update(req.params.token).digest('hex');
  const user=await User.findOne({passwordResetToken:token,passwordResetTokenExpires:{$gt:Date.now()}})
  if(!user)
  {
-    return res.status(201).json({
-        "status":"Failed",
-        "message":"Invalid token || Token Expired"
-    })
+    return sendResponse(res,400,'Failed','Invalid token or token expired',null);
  }
 
 if(req.body.password!==req.body.confirmPassword)
 {
-  return res.status(401).json({
-       "status":"Failed",
-       "message":"Password & confirmPassword didn't match"
-   })
+  return sendResponse(res,400,'Failed','Passwords didnot match',null);
 
 }
 user.password=req.body.password,
@@ -166,22 +110,24 @@ createSendResponse(user,200,res);
 }
 catch(err)
 {
-    next(err);
+   sendResponse(res,500,'Error',err.message,null);
 }
 }
 
-export const logoutUser=async (req,res,next)=>{
+
+
+
+ const logoutUser=async (req,res,next)=>{
  res.clearCookie('jwt',{
     httpOnly:true,
     sameSite:'None'
  });
- return res.status(200).json({
-    "status":"success",
-    "message":"Loged out succesfully!"
- })
+ return sendResponse(res,200,'Success','Logged out ')
 }
 
-export const protectRoute=async (req,res,next)=>{
+
+
+const protectRoute=async (req,res,next)=>{
 try{
    
  let token;
@@ -193,14 +139,14 @@ try{
         }
     if(!token)
     {
-        return res.status(401).json({message: 'Invalid Token'});
+        return sendResponse(res,401,'Failed','Invalid token',null);
     }
     const decodedToken=await util.promisify(jwt.verify)(token,process.env.SECRET_STR)
 
     const user=await User.findById(decodedToken.id);
     if(!user)
     {
-       return res.status(404).json({message: "The user with the given token doesn't exist"});
+       return sendResponse(res,404,'Failed','The user with the given token doesnot exist',null);
     }
 
  
@@ -208,16 +154,19 @@ try{
 
   if(isPasswordChanged)
    {
-    return res.status(401).json({message: 'Password has been changed recently!'});
+    return sendResponse(res,401,'Failed','Password has been changed recently');
    }
 
   req.user=user;
   next();
 } catch (error) {
-    // console.error(error);
-    res.status(500).json({ message: 'Internal Server Error' });
+    sendResponse(res,500,'Error','Internal Server error',null);
   }
 
 }
 
-export default signUp;
+
+const authController={
+     createSendResponse,signUp,login,forgotPassword,resetPassword,logoutUser,protectRoute
+}
+export default authController;
