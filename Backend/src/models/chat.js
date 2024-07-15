@@ -11,7 +11,7 @@ const messageSchema=new mongoose.Schema({
     senderType:{
         type:String,
         required:[true,'SenderType required'],
-        enum:['user','petDcotor']
+        enum:['user','petDoctor']
     },
     chatContent:{
         type:String,

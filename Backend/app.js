@@ -7,6 +7,7 @@ import petHealthRouter from './src/routes/petHealth-route.js';
 import cookieParser from 'cookie-parser';
 import petDoctorRouter from './src/routes/petDoctor-route.js';
 import appointmentRouter from './src/routes/appointment-router.js';
+import chatRouter from './src/routes/chat-route.js';
 
 const app=express();
 
@@ -20,6 +21,7 @@ app.use('/user',userRouter);
 app.use('/',petProfileRouter);
 app.use('/',petHealthRouter);
 app.use('/',appointmentRouter);
+app.use('/',chatRouter);
 app.use('/petDoctor',petDoctorRouter);
 
 
