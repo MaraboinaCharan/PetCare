@@ -69,7 +69,7 @@ const updatePetHealthInfo = async (req, res, next) => {
     }
 }
 
-const removePetHealthInfo = async (req, res, next) => {
+const removePetHealthInfo = async (req,res,next) => {
     try {
         const  {petId}  = req.params, owner = req.user._id;
         const pet = await findPetByIdAndOwner(petId, owner,res);

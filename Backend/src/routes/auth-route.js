@@ -4,11 +4,11 @@ import authController from '../controllers/auth-controller.js';
 
 const authRouter=express.Router();
 
-authRouter.get('/',authController.login)
-authRouter.post('/signup',authController.signUp)
-authRouter.post('/forgotPassword',authController.protectRoute,authController.forgotPassword);
-authRouter.patch('/resetPassword/:token',authController.protectRoute,authController.resetPassword);
-authRouter.post('/logout',authController.protectRoute,authController.logoutUser);
+authRouter.get('/user/login',authController.login)
+authRouter.post('/user/signup',authController.signUp)
+authRouter.post('/user/forgotPassword',authController.protectUserRoute,authController.forgotPassword);
+authRouter.patch('/user/resetPassword/:token',authController.protectUserRoute,authController.resetPassword);
+authRouter.post('/user/logout',authController.protectUserRoute,authController.logoutUser);
 
 
 export default authRouter;

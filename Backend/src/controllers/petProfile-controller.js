@@ -1,21 +1,19 @@
 import petHealth from '../models/PetHealth.js';
 import petProfile from '../models/petProfile.js';
 import { findPetByIdAndOwner, sendResponse, validateObjectId } from '../utils/utils.js';
-
+import user from '../models/user.js';
 
  const addPet=async (req,res,next)=>{
 try{
 const {petName,age,breed,medicalHistory,petPhotos,petProfilePicture}=req.body;
 const owner=req.user._id;
-console.log(req.body);
+// console.log(req.body);
 let existingPet=await petProfile.findOne({petName,owner});
  
  if(existingPet)
  {
-    sendResponse(res,400,'Failed','Duplicate Pet',null);
-   
+    sendResponse(res,400,'Failed','Duplicate Pet',null); 
  }
-
 const newPet=new petProfile({owner,petName,age,breed,medicalHistory,petPhotos,petProfilePicture});
 const newPetHealth=new petHealth({
     pet:newPet._id,

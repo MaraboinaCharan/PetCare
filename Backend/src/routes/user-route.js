@@ -4,9 +4,10 @@ import userController from '../controllers/user-controller.js';
 
 const userRouter=express.Router();
 
-userRouter.patch('/updatePassword',authController.protectRoute,userController.updatePassword);
-userRouter.patch('/updateUserData',authController.protectRoute,userController.updateUserData);
-userRouter.delete('/deleteUser',authController.protectRoute,userController.deleteUser);
+userRouter.patch('/user/updatePassword',authController.protectUserRoute,userController.updatePassword);
+userRouter.patch('/user/updateUserData',authController.protectUserRoute,userController.updateUserData);
+userRouter.delete('/user/deleteUser',authController.protectUserRoute,userController.deleteUser);
+
 
 
 export default userRouter;

@@ -1,7 +1,7 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 import validator from 'validator';
-import userMiddleware from '../middlewares/user-middleware.js';
 import userService from '../services/userService.js';
+import userMiddleware from '../middlewares/user-middleware.js';
 
 const userSchema=new mongoose.Schema({
     name:{
@@ -66,9 +66,19 @@ const userSchema=new mongoose.Schema({
 userSchema.methods.comparePasswordInDb=userService.comparePasswordInDb;
 userSchema.methods.isPasswordChanged=userService.isPasswordChanged;
 userSchema.methods.createResetPasswordToken=userService.createResetPasswordToken;
-userSchema.pre('save',userMiddleware.hashThePassword);
-userSchema.pre('findOneAndDelete',userMiddleware.deleteUserData);
 
-const user=mongoose.model('User',userSchema);
+// userSchema.pre('save',userMiddleware.hashThePassword);
+// userSchema.pre('findOneAndDelete',userMiddleware.deleteUserData);
+
+
+userSchema.pre('save', async function(next) {
+    await userMiddleware.hashThePassword.call(this, next);
+});
+
+userSchema.pre('findOneAndDelete', async function(next) {
+    await userMiddleware.deleteUserData.call(this, next);
+});
+
+const user=mongoose.model('user',userSchema);
 
 export default user;

@@ -1,6 +1,5 @@
 import petHealth from "../models/PetHealth.js";
 
-
    const deleteMedicalHistory=async function(next){
         const petId=this.getQuery()['_id'];
         try {

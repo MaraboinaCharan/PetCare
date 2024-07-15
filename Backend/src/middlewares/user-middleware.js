@@ -2,12 +2,13 @@ import bcrypt from 'bcrypt';
 import petHealth from '../models/PetHealth.js';
 import petProfile from '../models/petProfile.js';
 
-  const hashThePassword=async function (next){
+  const hashThePassword=async function(next){
 
+    try {
         if (!this.isModified('password')) {
             return next();
         }
-        try {
+     
             const hashedPassword = await bcrypt.hash(this.password, 12);
             this.password = hashedPassword;
             this.confirmPassword = undefined;
@@ -17,6 +18,7 @@ import petProfile from '../models/petProfile.js';
         }
     }
     const deleteUserData=async function (next){
+        try {
         const userId=this.getQuery()._id;
         const pets=await petProfile.find({owner:userId});
     
@@ -28,10 +30,15 @@ import petProfile from '../models/petProfile.js';
     
         next();
       }
+      catch(err)
+      {
+        next(err);
+      }
+    }
 
 const userMiddleware={
     hashThePassword,
     deleteUserData
-}
+};
 
 export default userMiddleware;

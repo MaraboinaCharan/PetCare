@@ -1,12 +1,12 @@
 import mongoose, { Schema } from "mongoose";
 import petProfileMiddleware from "../middlewares/petProfile-middleware.js";
 import petHealth from "./PetHealth.js";
-import User from "./user.js";
+import user from "./user.js";
 
 const petProfileSchema=new mongoose.Schema({
     owner:{
         type:Schema.Types.ObjectId,
-        ref:'User'
+        ref:'user'
     },
     petName:{
         type:String,

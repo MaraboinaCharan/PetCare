@@ -1,31 +1,34 @@
 import jwt from 'jsonwebtoken';
 import util from 'util';
 import crypto from 'crypto';
-import User from '../models/user.js';
 import sendEmail from '../utils/email.js';
 import dotenv from 'dotenv';
-import { createSendResponse, sendResponse } from '../utils/utils.js';
+import petDoctor from '../models/petDoctor.js';
+import { createSendResponse, sendResponse ,getModelName,getSecretStringandExpiresIn} from '../utils/utils.js';
+import user from '../models/user.js';
 
 dotenv.config({path:"./config.env"});
 
 
-
 const signUp=async (req,res,next)=>{
     try{
-    const {name,email,contactNumber,address,gender,password,confirmPassword}=req.body;
+      const Model=getModelName(req.path);
+    const {name,email,contactNumber,address,gender,password,confirmPassword,...rest}=req.body;
 
- let existingUser=await User.findOne({email});
+ let existingUser=await Model.findOne({email});
  
  if(existingUser)
  {
-   return sendResponse(res,400,'Duplicate User','User already exists',null);
+   return sendResponse(res,400,`Duplicate ${Model.modelName}`,`${Model.modelName} already exists`,null);
    
  }
- const newUser=await User.create({
-    name,email,contactNumber,address,gender,password,confirmPassword
+ const newUser=await Model.create({
+    name,email,contactNumber,address,gender,password,confirmPassword,...rest
  });
 
-   createSendResponse(newUser,201,res);
+ const {secret,expiresIn,cookieExpires,cookieName}=getSecretStringandExpiresIn(req.path);
+
+   createSendResponse(newUser,201,res,secret,expiresIn,cookieExpires,cookieName);
 }
 catch(err){
     sendResponse(res,500,'Error',err.message,null);
@@ -35,9 +38,10 @@ catch(err){
 
 const login=async (req,res,next)=>{
  try{
+   const Model=getModelName(req.path);
   const {email,password}=req.body;
 
-  const user=await User.findOne({email}).select('+password');
+  const user=await Model.findOne({email}).select('+password');
   
   const isPasswordCorrect=await user.comparePasswordInDb(password,user.password);
 
@@ -45,8 +49,9 @@ const login=async (req,res,next)=>{
   {
     return sendResponse(res,401,'Error','Invalied email or passowrd',null);
   }
-createSendResponse(user,200,res);
-
+  const {secret,expiresIn,cookieExpires,cookieName}=getSecretStringandExpiresIn(req.path)
+  // console.log(req.path,cookieName)
+createSendResponse(user,200,res,secret,expiresIn,cookieExpires,cookieName);
 
  }
  catch(err)
@@ -55,14 +60,14 @@ createSendResponse(user,200,res);
  }
 }
 
-
 const forgotPassword=async (req,res,next)=>{
- const user=await User.findOne({email:req.body.email});
+   const Model=getModelName(req.path)
+ const user=await Model.findOne({email:req.body.email});
  if(!user)
  {
-    return sendResponse(res,404,'Failed','User doesnot exist with the given email-id',null)
+    return sendResponse(res,404,'Failed',`${Model.modelName} doesnot exist with the given email-id`,null)
  }
- const resetToken=user.createResetPasswordToken();
+ const resetToken=await user.createResetPasswordToken();
  await user.save({validateBeforeSave:false});
  const resetUrl=`${req.protocol}://${req.get('host')}/resetPassword/${resetToken}`;
  const emailMessage=`You have recieved a password reset email click here to reset password ${resetUrl}`;
@@ -72,7 +77,9 @@ const forgotPassword=async (req,res,next)=>{
         subject:'Reset Password for PetCare Account',
         message:emailMessage
     })
-   sendResponse(res,200,'Success','Password reset link sent to the user',null);
+    const {cookieName}=getSecretStringandExpiresIn(req.path)
+
+   sendResponse(res,200,'Success',`Password reset link sent to the ${Model.modelName}`,null);
  }
  catch(err)
  {
@@ -88,8 +95,9 @@ const forgotPassword=async (req,res,next)=>{
 
 const resetPassword=async (req,res,next)=>{
     try{
+      const Model=getModelName(req.path);
  const token=crypto.createHash('sha256').update(req.params.token).digest('hex');
- const user=await User.findOne({passwordResetToken:token,passwordResetTokenExpires:{$gt:Date.now()}})
+ const user=await Model.findOne({passwordResetToken:token,passwordResetTokenExpires:{$gt:Date.now()}})
  if(!user)
  {
     return sendResponse(res,400,'Failed','Invalid token or token expired',null);
@@ -105,8 +113,9 @@ user.confirmPassword=req.body.confirmPassword;
  user.passwordResetToken=undefined,user.passwordResetTokenExpires=undefined;
  user.passwordChangedAt=Date.now();
  await user.save();
- 
-createSendResponse(user,200,res);
+
+ const {secret,expiresIn,cookieExpires,cookieName}=getSecretStringandExpiresIn(req.path)
+createSendResponse(user,200,res,secret,expiresIn,cookieExpires,cookieName);
 }
 catch(err)
 {
@@ -115,58 +124,79 @@ catch(err)
 }
 
 
-
-
  const logoutUser=async (req,res,next)=>{
- res.clearCookie('jwt',{
+   const {cookieName}=getSecretStringandExpiresIn(req.path)
+ res.clearCookie(cookieName,{
     httpOnly:true,
-    sameSite:'None'
+    sameSite:'None',
+    secure:true
  });
  return sendResponse(res,200,'Success','Logged out ')
 }
 
-
-
-const protectRoute=async (req,res,next)=>{
-try{
-   
- let token;
+const protectUserRoute = async (req, res, next) => {
+    try {
+        const secret = process.env.SECRET_STR;
+        const cookieName = 'userJwt';
+        const Model=user;
+        let token;
         if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
             token = req.headers.authorization.split(' ')[1];
-        } else if (req.cookies && req.cookies.jwt) {
-            token = req.cookies.jwt;
-            
+        } else if (req.cookies && req.cookies[cookieName]) {
+            token = req.cookies[cookieName];
+        } else {
+            return sendResponse(res, 401, 'Failed', 'Invalid token', null);
         }
-    if(!token)
-    {
-        return sendResponse(res,401,'Failed','Invalid token',null);
+
+        const decodedToken = await util.promisify(jwt.verify)(token, secret); 
+        const user2 = await Model.findById(decodedToken.id);
+        if (!user2) {
+            return sendResponse(res, 404, 'Failed', 'User not found', null);
+        }
+        const isPasswordChanged = await user2.isPasswordChanged(decodedToken.iat);
+        if (isPasswordChanged) {
+            return sendResponse(res, 401, 'Failed', 'Password has been changed recently');
+        }
+
+        req.user = user2;
+        next();
+    } catch (error) {
+        sendResponse(res, 500, 'Error', 'Internal Server error', null);
     }
-    const decodedToken=await util.promisify(jwt.verify)(token,process.env.SECRET_STR)
+};
 
-    const user=await User.findById(decodedToken.id);
-    if(!user)
-    {
-       return sendResponse(res,404,'Failed','The user with the given token doesnot exist',null);
-    }
+const protectPetDoctorRoute = async (req, res, next) => {
+  try {
+      const secret = process.env.PET_DOCTOR_SECRET_STR;
+      const cookieName = 'petDoctorJwt';
+      let token;
+      if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+          token = req.headers.authorization.split(' ')[1];
+      } else if (req.cookies && req.cookies[cookieName]) {
+          token = req.cookies[cookieName];
+      } else {
+          return sendResponse(res, 401, 'Failed', 'Invalid token', null);
+      }
 
- 
-  const isPasswordChanged=await user.isPasswordChanged(decodedToken.iat);
+      const decodedToken = await util.promisify(jwt.verify)(token, secret);
+      const petDoctor2 = await petDoctor.findById(decodedToken.id);
+      if (!petDoctor2) {
+          return sendResponse(res, 404, 'Failed', 'Pet Doctor not found', null);
+      }
 
-  if(isPasswordChanged)
-   {
-    return sendResponse(res,401,'Failed','Password has been changed recently');
-   }
+      const isPasswordChanged = await petDoctor2.isPasswordChanged(decodedToken.iat);
+      if (isPasswordChanged) {
+          return sendResponse(res, 401, 'Failed', 'Password has been changed recently');
+      }
 
-  req.user=user;
-  next();
-} catch (error) {
-    sendResponse(res,500,'Error','Internal Server error',null);
+      req.user = petDoctor2;
+      next();
+  } catch (error) {
+      sendResponse(res, 500, 'Error', 'Internal Server error', null);
   }
-
-}
-
+};
 
 const authController={
-     createSendResponse,signUp,login,forgotPassword,resetPassword,logoutUser,protectRoute
+     createSendResponse,signUp,login,forgotPassword,resetPassword,logoutUser,protectUserRoute,protectPetDoctorRoute
 }
 export default authController;
