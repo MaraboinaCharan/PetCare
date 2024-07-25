@@ -7,7 +7,7 @@ PetCare is a  platform designed to manage pet profiles, health records, and appo
 
 Table of Contents:
 
-Features
+Features 
 Technologies Used
 Prerequisites
 Installation
