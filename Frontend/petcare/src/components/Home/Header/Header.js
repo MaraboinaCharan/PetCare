@@ -1,6 +1,6 @@
 import React from "react";
 import foot from '../../../assets/images/whiteFoot.png';
-import '../HomePage-Header/Header.scss'
+import './Header.scss'
 import HomeSymbol from '../../../assets/images/HomeLogo.png';
 import exit from '../../../assets/images/exit.png'
 function Header() {
