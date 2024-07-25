@@ -1,39 +1,55 @@
-.home-page{
-    background: linear-gradient(to right, #140119, #5B0E4E); 
+.home-page {
+    background: linear-gradient(to right, #140119, #5B0E4E);
     min-height: 100vh;
     color: #fff;
     display: flex;
     flex-direction: column;
     justify-content: center;
-  
-    .header-section{
-        margin-left: 5%;
+
+    .header-section {
+        background-color: rgba(0, 0, 0, 0.5);
+
+        .div {
+            margin-left: 4vw;
+        }
     }
-    
- 
+ .main{
+    display: flex;
+    flex-direction: row;
+   gap: 1%;
+   padding: 5px;
+
     .left-part {
+        width: 40%;
         .title {
             font-size: 4vh;
             margin-top: 5%;
         }
 
-        display: flex;
-        flex-direction: column;
-        gap: 60%;
-        position: absolute;
-        top:15%;
-        left: 7%;
-
+        .div{
+            display: flex;
+            flex-direction: column;
+            gap: 10%;
+            margin-left: 15%;
+        }
+        // display: flex;
+        // flex-direction: column;
+        // gap: 60%;
+        // position: absolute;
+        // top:15%;
+        // left: 7%;
+  .users{
+   
         .user-item {
             display: flex;
             flex-direction: row;
             align-items: center;
-            width: 35%;
+            width: 95%;
             margin-top: 0.5%;
-                padding: 20px;
-                border: 1px solid #ccc;
-                border-radius: 10px;
-                background-color: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            background-color: rgba(255, 255, 255, 0.1);
             cursor: pointer;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
 
@@ -64,18 +80,29 @@
                     margin: 0;
                     color: #ccc;
                     width: 97%;
+                    padding: 1px;
                 }
             }
         }
-    
+
     }
-.right-part{
-    .rectangle{
-        position: relative;
-        left: 40%;
-   
     }
-    .dog,.dog1,.dog2,.dog3,.dog4,.dog5 {
+    .right-part {
+
+        .rectangle {
+            // position: relative;
+            // left: 40%;
+
+
+        }
+
+        .dog,
+        .dog1,
+        .dog2,
+        .dog3,
+        .dog4,
+        .dog5 {
+
             position: absolute;
             cursor: pointer;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -83,45 +110,301 @@
             &:hover {
                 transform: scale(1.1);
                 box-shadow: 0 rgba(255, 255, 255, 0.7);
-               
+
             }
-           
+
         }
-    .dog{
-        position: absolute;
-        top:40%;
-        right:14%;
-        width:auto;
-        height: 60%;
-    }
-    .dog1{
-        position: absolute;
-        top: 45%;
-        right:42%
-    }
-    .dog4{
-        position: absolute;
-        top: 82%;
-        right:43%
-    }
-    .dog2{
-        position: absolute;
-        top: 17%;
-        right:24%
-    }
-    .dog3{
-        position: absolute;
-        top: 19%;
-        right: 7%
-    }
-    .dog5{
-        position: absolute;
-        top:17%;
-        right:42%;
+
+        .dog {
+            top: 40%;
+            // right: 14%;
+          
+        }
+
+        .dog1 {
+            position: absolute;
+            // top: 45%;
+            // right: 42%
+        }
+
+        .dog4 {
+            position: absolute;
+            // top: 82%;
+            // right: 43%
+        }
+
+        .dog2 {
+            position: absolute;
+            // top: 17%;
+            // right: 24%
+        }
+
+        .dog3 {
+            position: absolute;
+            // top: 19%;
+            // right: 7%
+        }
+
+        .dog5 {
+            position: absolute;
+            // top: 17%;
+            // right: 42%;
+        }
     }
 }
 }
 
+@media (max-width:420px) {
+    .left-part {
+        .user {
+            align-items: center;
+        }
+    }
 
+    .home-page {
+        .right-part {
+            .dog {
+                margin-right: -12%;
+            }
+        }
+    }
+}
 
+//media queries
+@media (max-width: 600px) {
+    .home-page {
+        .header-section {
+            .div {
+                margin-left: 0vw;
+            }
+        }
 
+        .left-part {
+
+            .title {
+                margin-right: 4vw;
+            }
+
+            .user {
+
+                align-items: center;
+                width: auto;
+                height: auto;
+                font-size: 1.9vh;
+
+                img {
+                    transform: scale(0.8);
+                }
+
+                display: flex;
+                gap: 10vw;
+                flex-wrap: wrap;
+
+                .user-item {
+                    flex-direction: column;
+                    padding: 1px;
+                }
+
+                .user-description {
+                    display: none;
+                }
+            }
+        }
+
+        .right-part {
+            .rectangle {
+                visibility: hidden;
+            }
+
+            .dog {
+                right: -13%;
+                top: 53%;
+            }
+
+            .dog1,
+            .dog2,
+            .dog3,
+            .dog4,
+            .dog5 {
+                display: none;
+            }
+
+            img {
+                transform: scale(0.55);
+            }
+        }
+    }
+}
+
+/* Small devices (portrait tablets and large phones, 600px and up) */
+@media (min-width: 600px) {
+    .home-page {
+        .header-section {
+            .div {
+                margin-left: 0vw;
+            }
+        }
+
+        .left-part {
+
+            .title {
+                margin-right: 4vw;
+            }
+
+            .user {
+
+                width: auto;
+                height: auto;
+                font-size: 1.9vh;
+
+                img {
+                    transform: scale(0.8);
+                }
+
+                display: flex;
+                flex-direction: column;
+                gap: 3vw;
+
+                .user-item {
+                    width: 53%;
+                    flex-direction: row;
+                    align-items: center;
+                    padding: 1px;
+                }
+
+                .user-description {}
+            }
+        }
+
+        .right-part {
+            .rectangle {
+                visibility: hidden;
+            }
+
+            .dog {
+                right: -12%;
+                top: 50%;
+            }
+
+            .dog1,
+            .dog2,
+            .dog3,
+            .dog4,
+            .dog5 {
+                display: none;
+            }
+
+            img {
+                transform: scale(0.65);
+            }
+        }
+    }
+}
+
+/* Medium devices (landscape tablets, 768px and up) */
+@media (min-width: 768px) {
+    .home-page {
+
+        .right-part {
+            .dog {
+                margin-right: 5%;
+            }
+        }
+    }
+}
+
+//   /* Large devices (laptops/desktops, 992px and up) */
+@media (min-width: 1000px) {
+    .home-page {
+        font-size: 6vh;
+
+        .left-part {
+            .user {
+                gap: 1vh;
+
+                img {
+                    // border-radius: 50%;
+                    width: 100px;
+                    height: 120px;
+                    margin-right: 20px;
+                }
+
+                .user-item {
+                    width: 35%;
+                }
+            }
+        }
+
+        .right-part {
+         
+
+            .rectangle {
+                display: block;
+                // position: relative;
+                // left: 30%;
+                // width: 10%;
+                visibility: visible;
+                // transform: translate(50%, -10%);
+                img{
+                    margin-bottom: 1%;
+                    height: 50%;
+                    transform: translate(-5%, 5%);
+                }
+
+            }
+
+            .dog {
+                top: 40%;
+                right: 3%;
+                position: absolute;
+                transform:translate(-5%,5%);
+            }
+
+            .dog1,
+            .dog2,
+            .dog3,
+            .dog4,
+            .dog5 {
+                display: block;
+            }
+
+            
+
+            .dog1 {
+                position: absolute;
+                top: 45%;
+                right: 51%
+                
+            }
+
+            .dog4 {
+              transform: translate(-5%,5%);
+                top: 82%;
+                right: 46%
+            }
+
+            .dog2 {
+                position: absolute;
+                top: 17%;
+                right: 24%
+            }
+
+            .dog3 {
+                position: absolute;
+                top: 19%;
+                right: 7%
+            }
+
+            .dog5 {
+                position: absolute;
+                top: 17%;
+                right: 42%;
+            }
+        }
+    }
+}
+
+//   /* Extra large devices (large laptops and desktops, 1200px and up) */
+//   @media (min-width: 1200px) {
+
+//   }
