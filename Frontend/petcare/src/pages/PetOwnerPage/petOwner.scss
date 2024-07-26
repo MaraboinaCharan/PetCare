@@ -1,0 +1,77 @@
+.petOwnerPage {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    
+    .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem;
+        background-color: #4CAF50;
+        color: #fff;
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .profile {
+            display: flex;
+            align-items: center;
+            
+            span {
+                margin-right: 1rem;
+            }
+
+            .logoutBtn {
+                padding: 0.5rem 1rem;
+                background-color: #f44336;
+                color: #fff;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+            }
+        }
+    }
+
+    .mainContent {
+        display: flex;
+        height: calc(100vh - 4rem);
+
+        .sidebar {
+            width: 250px;
+            background-color: #f4f4f4;
+            padding: 1rem;
+
+            nav ul {
+                list-style: none;
+                padding: 0;
+                margin: 0;
+
+                li {
+                    margin-bottom: 1rem;
+
+                    a {
+                        text-decoration: none;
+                        color: #333;
+                        font-size: 1.1rem;
+                        padding: 0.5rem;
+                        border-radius: 4px;
+
+                        &:hover {
+                            background-color: #ddd;
+                        }
+                    }
+                }
+            }
+        }
+
+        .content {
+            flex: 1;
+            padding: 1rem;
+            background-color: #fff;
+            overflow-y: auto;
+        }
+    }
+}
