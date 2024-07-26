@@ -1,4 +1,15 @@
 .form-container {
+    .message {
+        padding: 10px;
+        margin-bottom: 15px;
+        border: 1px solid #ccc;
+        background-color: #f9f9f9;
+        color: #333;
+        border-radius: 5px;
+        text-align: center;
+    }
+
+    
    background: linear-gradient(to bottom, #FD653D,#FF4167);
     // #FF4167);
     padding: 20px;
