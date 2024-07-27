@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../services/authContext.js'; // Import useAuth
-import { userLogin, userSignup, petDoctorLogin, petDoctorSignup } from '../../../services/formService.js';
+import { userLogin, userSignup } from '../../../utils/petOwner-utils.js';
+import { petDoctorLogin, petDoctorSignup } from '../../../services/formService.js';
 import './Form.scss';
 
 function Form({ userType, formMode, setFormMode, handleBackClick }) {
@@ -11,7 +12,17 @@ function Form({ userType, formMode, setFormMode, handleBackClick }) {
             city: '',
             state: '',
             pincode: ''
-        }
+        },
+        name: '',
+        email: '',
+        password: '',
+        confirmPassword: '',
+        contactNumber: '',
+        address: '',
+        gender: '',
+        clinicName: '',
+        specialization: '',
+        experience: ''
     });
     const [message, setMessage] = useState('');
     const navigate = useNavigate();
